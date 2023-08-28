@@ -20,6 +20,12 @@
         "xtree": "c",
         "xutility": "c",
         "core.h": "c",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "thread": "cpp",
+        "functional": "cpp",
+        "optional": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xtr1common": "cpp"
     }
 }

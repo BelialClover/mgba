@@ -13,6 +13,7 @@
 
 #include "platform/sdl/sdl-audio.h"
 #include <thread>
+#include <sqlite3.h>
 
 using namespace QGBA;
 
@@ -227,13 +228,114 @@ void LogView::playCry(const QString& number){
 
     if (ok) {
         // Construct the filename using QString and QDir
-        QString filename = QDir::toNativeSeparators("sounds/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
+        QString filename = QDir::toNativeSeparators("sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
         // Convert the QString to a const char* if needed
-        char const* filenameChar = filename.toUtf8().constData();
-
+        char const* filenameChar     = filename.toUtf8().constData();
         std::thread audioThread(mSDLPlayAudio, filenameChar);
 		audioThread.detach(); // Detach the thread
+
+		/* //Database Stuff
+		QString pokemon_name = QDir::toNativeSeparators(QString::fromUtf8(pokemonNames[speciesnum]));
+        char const* pokemon_nameChar = pokemon_name.toUtf8().constData();
+		LogView::insertString(pokemon_nameChar);
+		*/
     }
+}
+
+void LogView::playAnimeCry(const QString& number){
+    bool ok;
+    int speciesnum = number.toInt(&ok);
+
+    if (ok) {
+		if(speciesnum < 650){
+			// Construct the filename using QString and QDir
+			QString filename = QDir::toNativeSeparators("sounds/cries/anime/" + number + ".wav");
+			// Convert the QString to a const char* if needed
+			char const* filenameChar = filename.toUtf8().constData();
+			std::thread audioThread(mSDLPlayAudio, filenameChar);
+			audioThread.detach(); // Detach the thread
+		}
+		else{
+			// Construct the filename using QString and QDir
+			QString filename = QDir::toNativeSeparators("sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
+			// Convert the QString to a const char* if needed
+			char const* filenameChar = filename.toUtf8().constData();
+			std::thread audioThread(mSDLPlayAudio, filenameChar);
+			audioThread.detach(); // Detach the thread
+		}
+    }
+}
+
+#define EWRAM_START 0x02000000
+#define COMPRESSED_POKEMON_BYTE_SIZE (36 / 4)
+int LogView::insertCompressedPokemon(char const* species, int level, int shiny, char const* nickname, int value1, int value2, int value3, int value4, int value5, int value6, int value7, int value8, int value9){
+	int i;
+	uint32_t password[COMPRESSED_POKEMON_BYTE_SIZE];
+    sqlite3 *db;
+    int rc = sqlite3_open("database/test.db", &db);
+
+    /*for(i = 0; i < COMPRESSED_POKEMON_BYTE_SIZE; i++){
+		password[i] = core->busRead32(core, EWRAM_START + 0x3fde0 + (i * 0x4));//Sends the Pokémon data into an array
+    }*/
+
+	const char* sql = "INSERT INTO CompressedPokemon (Species, Level, Shiny, Nickname, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    sqlite3_stmt* stmt;
+
+	if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        // Handle error
+        return 1;
+    }
+
+	// Bind parameters
+    sqlite3_bind_text(stmt, 1,  species, -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt,  2,  level);
+    sqlite3_bind_int(stmt,  3,  shiny);
+    sqlite3_bind_text(stmt, 4,  nickname, -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt,  5,  value1);
+    sqlite3_bind_int(stmt,  6,  value2);
+    sqlite3_bind_int(stmt,  7,  value3);
+    sqlite3_bind_int(stmt,  8,  value4);
+    sqlite3_bind_int(stmt,  9,  value5);
+    sqlite3_bind_int(stmt,  10, value6);
+    sqlite3_bind_int(stmt,  11, value7);
+    sqlite3_bind_int(stmt,  12, value8);
+    sqlite3_bind_int(stmt,  13, value9);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        // Handle error
+        return 1;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return 0;
+}
+
+int LogView::insertString(char const* filename){
+    sqlite3 *db;
+    int rc = sqlite3_open("database/test.db", &db);
+	//core->busWrite8(core, address, value)
+
+	const char *sql = "INSERT INTO test_table (Pokemon) VALUES (?)";
+    sqlite3_stmt *stmt;
+
+	if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        // Handle error
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, filename, -1, SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        // Handle error
+        return 1;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return 0;
 }
 
 void LogView::postLog(int level, int category, const QString& log) {
@@ -242,13 +344,59 @@ void LogView::postLog(int level, int category, const QString& log) {
 	//Check if any special command is sent
 	if(level == mLOG_WARN){
 		//Play Cry
-		QRegularExpression re("^PlayCry:(?<crynum>\\d{1,3})$");
-		QRegularExpressionMatch match = re.match(log);
-		if (match.hasMatch()) {
+		QRegularExpression re1("^PlayCry:(?<crynum>\\d{1,3})$");
+		QRegularExpressionMatch match1 = re1.match(log);
+		if (match1.hasMatch()) {
 			//Plays the Cry
-			const QString& temp = match.captured("crynum");
+			const QString& temp = match1.captured("crynum");
 			LogView::playCry(temp);
 			return;
+		}
+
+		//Play Anime Cry
+		QRegularExpression re2("^PlayAnimeCry:(?<crynum>\\d{1,3})$");
+		QRegularExpressionMatch match2 = re2.match(log);
+		if (match2.hasMatch()) {
+			//Plays the Cry
+			const QString& temp = match2.captured("crynum");
+			LogView::playAnimeCry(temp);
+			return;
+		}
+
+		//Insert Pokemon
+		QRegularExpression re3("^InsertMon:(?<species>[^:]+):(?<level>\\d+):(?<shiny>\\d+):(?<nickname>[^:]+):(?<value1>\\d+):(?<value2>\\d+):(?<value3>\\d+):(?<value4>\\d+):(?<value5>\\d+):(?<value6>\\d+):(?<value7>\\d+):(?<value8>\\d+):(?<value9>\\d+)$");
+		QRegularExpressionMatch match3 = re3.match(log);
+
+		if (match3.hasMatch()) {
+			QString species  = match3.captured("species");
+			int level        = match3.captured("level").toInt();
+			int shiny        = match3.captured("shiny").toInt();
+			QString nickname = match3.captured("nickname");
+			int value1       = match3.captured("value1").toInt();
+			int value2       = match3.captured("value2").toInt();
+			int value3       = match3.captured("value3").toInt();
+			int value4       = match3.captured("value4").toInt();
+			int value5       = match3.captured("value5").toInt();
+			int value6       = match3.captured("value6").toInt();
+			int value7       = match3.captured("value7").toInt();
+			int value8       = match3.captured("value8").toInt();
+			int value9       = match3.captured("value9").toInt();
+
+			bool ok;
+    		int speciesnum = species.toInt(&ok);
+			if (ok) {
+				char const* SpeciesName = pokemonNames[speciesnum];
+				char const* Nickname    = pokemonNames[speciesnum];
+				insertCompressedPokemon(SpeciesName, level, shiny,
+									Nickname, value1, value2, value3,
+									value4, value5, value6, value7, value8, value9);
+			}
+			return;
+
+			/*insertCompressedPokemon(species.toUtf8().constData(), level, shiny,
+									nickname.toUtf8().constData(), value1, value2, value3,
+									value4, value5, value6, value7, value8, value9);*/
+		
 		}
 	}
 

@@ -27,6 +27,9 @@ signals:
 
 public slots:
 	void playCry(const QString& number);
+	void playAnimeCry(const QString& number);
+	int  insertCompressedPokemon(char const* species, int level, int shiny, char const* nickname, int value1, int value2, int value3, int value4, int value5, int value6, int value7, int value8, int value9);
+	int  insertString(char const* filename);
 	void postLog(int level, int category, const QString& log);
 	void setLevels(int levels);
 	void clear();
