@@ -7,6 +7,19 @@
         "chrono": "c",
         "system_error": "c",
         "xlocale": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "array": "c",
+        "initializer_list": "c",
+        "list": "c",
+        "random": "c",
+        "regex": "c",
+        "type_traits": "c",
+        "vector": "c",
+        "xhash": "c",
+        "xstring": "c",
+        "xtree": "c",
+        "xutility": "c",
+        "core.h": "c",
+        "iostream": "cpp"
     }
 }

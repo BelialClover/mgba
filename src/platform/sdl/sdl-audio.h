@@ -46,8 +46,7 @@ void mSDLDeinitAudio(struct mSDLAudio* context);
 void mSDLPauseAudio(struct mSDLAudio* context);
 void mSDLResumeAudio(struct mSDLAudio* context);
 
-bool mSDLPlayAudio(char const* filename);
-bool mSDLPlayAudioSDL2(char const* filename);
+void mSDLPlayAudio(char const* filename);
 
 CXX_GUARD_END
 

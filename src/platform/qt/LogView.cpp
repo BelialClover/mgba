@@ -12,6 +12,7 @@
 #include <QTextBlock>
 
 #include "platform/sdl/sdl-audio.h"
+#include <thread>
 
 using namespace QGBA;
 
@@ -221,58 +222,43 @@ const char* pokemonNames[] = {
 };
 
 void LogView::playCry(const QString& number){
-	Window* window;
-	bool ok; // This will be set to true if the conversion is successful
-	int speciesnum = number.toInt(&ok);
+    bool ok;
+    int speciesnum = number.toInt(&ok);
 
-	if (ok) {
-    	// Construct the filename using QString and QDir
-		QString filename = QDir::toNativeSeparators("sounds/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
-		// Convert the QString to a const char* if needed
-    	char const* filenameChar = filename.toUtf8().constData();
-        if(mSDLPlayAudio(filenameChar) == true){
-			window->selectState(false);
-		}
+    if (ok) {
+        // Construct the filename using QString and QDir
+        QString filename = QDir::toNativeSeparators("sounds/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
+        // Convert the QString to a const char* if needed
+        char const* filenameChar = filename.toUtf8().constData();
+
+        std::thread audioThread(mSDLPlayAudio, filenameChar);
+		audioThread.detach(); // Detach the thread
     }
 }
 
 void LogView::postLog(int level, int category, const QString& log) {
 	QString line = QString("[%1] %2:\t%3").arg(LogController::toString(level)).arg(mLogCategoryName(category)).arg(log);
-	bool printData = true;
+
+	//Check if any special command is sent
 	if(level == mLOG_WARN){
 		//Play Cry
-		QRegularExpression re("^PlayCry:(?<crynum>\\d\\d\\d)$");
+		QRegularExpression re("^PlayCry:(?<crynum>\\d{1,3})$");
 		QRegularExpressionMatch match = re.match(log);
 		if (match.hasMatch()) {
 			//Plays the Cry
 			const QString& temp = match.captured("crynum");
 			LogView::playCry(temp);
-			printData = false;
-			line = QString("[%1] %2: Play Cry: \t%3").arg(LogController::toString(level)).arg(mLogCategoryName(category)).arg(temp);
-		}
-		else{
-			QRegularExpression re("^TryToSaveData:(?<temp>\\d\\d\\d)$");
-			QRegularExpressionMatch match = re.match(log);
-			if (match.hasMatch()) {
-				//Save State ->
-				Window* window;
-				window->selectState(false);
-				const QString& temp = match.captured("temp");
-				printData = false;
-				line = QString("[%1] %2: Play Cry: \t%3").arg(LogController::toString(level)).arg(mLogCategoryName(category)).arg(temp);
-			}
+			return;
 		}
 	}
 
-	//if(printData == true){
-		// TODO: Log to file
-		m_pendingLines.enqueue(line);
-		++m_lines;
-		if (m_lines > m_lineLimit) {
-			clearLine();
-		}
-		update();
-	//}
+	// TODO: Log to file
+	m_pendingLines.enqueue(line);
+	++m_lines;
+	if (m_lines > m_lineLimit) {
+		clearLine();
+	}
+	update();
 }
 
 void LogView::clear() {
