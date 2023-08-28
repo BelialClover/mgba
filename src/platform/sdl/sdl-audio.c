@@ -131,3 +131,31 @@ static void _mSDLAudioCallback(void* context, Uint8* data, int len) {
 		memset(((short*) data) + audioContext->obtainedSpec.channels * available, 0, (len - available) * audioContext->obtainedSpec.channels * sizeof(short));
 	}
 }
+
+
+bool mSDLPlayAudio(char const* filename){
+	SDL_AudioSpec wavSpec;
+	Uint32 wavLength;
+	Uint8 *wavBuffer;
+	bool test = false;
+
+	if (SDL_LoadWAV(filename, &wavSpec, &wavBuffer, &wavLength) == NULL) {
+		mLOG(SDL_AUDIO, ERROR, "Could not find sounds/audio.wav: %s", SDL_GetError());
+	}
+
+	SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
+	if (deviceId == 0) {
+		mLOG(SDL_AUDIO, ERROR, "Could not open sounds/audio.wav: %s", SDL_GetError());
+		test = true;
+	}
+
+	SDL_QueueAudio(deviceId, wavBuffer, wavLength);
+	SDL_PauseAudioDevice(deviceId, 0);
+
+	// ... Some delay to let the audio play ...
+	SDL_Delay(500);
+	SDL_CloseAudioDevice(deviceId);
+	SDL_FreeWAV(wavBuffer);
+
+	return test;
+}

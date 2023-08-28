@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "cmath": "cpp",
+        "atomic": "cpp",
+        "format": "cpp",
+        "memory": "cpp",
+        "chrono": "c",
+        "system_error": "c",
+        "xlocale": "c",
+        "string.h": "c"
+    }
+}

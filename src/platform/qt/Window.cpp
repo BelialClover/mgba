@@ -1661,7 +1661,7 @@ void Window::setupMenu(QMenuBar* menubar) {
 
 	m_actions.addAction(tr("Game Pak sensors..."), "sensorWindow",  openNamedControllerTView<SensorView>(&m_sensorView, &m_inputController), "tools");
 
-	addGameAction(tr("&Cheats..."), "cheatsWindow", openControllerTView<CheatsView>(), "tools");
+	//addGameAction(tr("&Cheats..."), "cheatsWindow", openControllerTView<CheatsView>(), "tools");
 #ifdef ENABLE_SCRIPTING
 	m_actions.addAction(tr("Scripting..."), "scripting", this, &Window::scriptingOpen, "tools");
 #endif

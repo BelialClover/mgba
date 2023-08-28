@@ -26,6 +26,7 @@ signals:
 	void levelsDisabled(int levels);
 
 public slots:
+	void playCry(const QString& number);
 	void postLog(int level, int category, const QString& log);
 	void setLevels(int levels);
 	void clear();
@@ -42,6 +43,7 @@ private:
 	Ui::LogView m_ui;
 	int m_lines = 0;
 	int m_lineLimit = DEFAULT_LINE_LIMIT;
+	Window* m_window;
 	QQueue<QString> m_pendingLines;
 
 	void setLevel(int level, bool);
