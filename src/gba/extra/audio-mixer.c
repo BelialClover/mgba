@@ -8,6 +8,7 @@
 #include <mgba/core/blip_buf.h>
 #include <mgba/internal/gba/gba.h>
 #include <mgba/internal/gba/video.h>
+#include <stddef.h>
 
 #define OVERSAMPLE 2
 

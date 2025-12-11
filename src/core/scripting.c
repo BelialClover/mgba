@@ -14,6 +14,7 @@
 #include <mgba/script/context.h>
 #include <mgba-util/table.h>
 #include <mgba-util/vfs.h>
+#include <stddef.h>
 
 mLOG_DEFINE_CATEGORY(SCRIPT, "Scripting", "script");
 

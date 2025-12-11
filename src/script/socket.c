@@ -10,6 +10,7 @@
 #include <mgba/internal/script/socket.h>
 #include <mgba/script/macros.h>
 #include <mgba-util/socket.h>
+#include <stddef.h>
 
 struct mScriptSocket {
 	Socket socket;

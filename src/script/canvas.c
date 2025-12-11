@@ -8,6 +8,7 @@
 #include <mgba/feature/video-backend.h>
 #include <mgba/script/base.h>
 #include <mgba-util/image.h>
+#include <stddef.h>
 
 struct mScriptCanvasContext;
 struct mScriptCanvasLayer {

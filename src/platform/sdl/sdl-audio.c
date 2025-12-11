@@ -132,30 +132,31 @@ static void _mSDLAudioCallback(void* context, Uint8* data, int len) {
 	}
 }
 
-void mSDLPlayAudio(char const* filename){
-	SDL_AudioSpec wavSpec;
+void mSDLPlayAudio(const char* filename) {
+    SDL_AudioSpec wavSpec;
     Uint32 wavLength;
-    Uint8 *wavBuffer;
+    Uint8* wavBuffer;
 
-    if (SDL_LoadWAV(filename, &wavSpec, &wavBuffer, &wavLength) == NULL) {
-        mLOG(SDL_AUDIO, ERROR, "Could not find sounds/audio.wav: %s", SDL_GetError());
-        return;  // Return early if loading fails
+    if (!SDL_LoadWAV(filename, &wavSpec, &wavBuffer, &wavLength)) {
+        mLOG(SDL_AUDIO, ERROR, "Could not load WAV: %s", SDL_GetError());
+        return;
     }
 
     SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
     if (deviceId == 0) {
-        mLOG(SDL_AUDIO, ERROR, "Could not open sounds/audio.wav: %s", SDL_GetError());
-        SDL_FreeWAV(wavBuffer);  // Free the buffer before returning
-        return;  // Return early if opening audio device fails
+        mLOG(SDL_AUDIO, ERROR, "Could not open audio: %s", SDL_GetError());
+        SDL_FreeWAV(wavBuffer);
+        return;
     }
 
     SDL_QueueAudio(deviceId, wavBuffer, wavLength);
     SDL_PauseAudioDevice(deviceId, 0);
 
-    // Wait for audio playback to complete
-    SDL_Delay(1000);
+    // Wait until audio has finished playing
+    while (SDL_GetQueuedAudioSize(deviceId) > 0) {
+        SDL_Delay(10);
+    }
 
-    // Clean up audio resources
     SDL_CloseAudioDevice(deviceId);
     SDL_FreeWAV(wavBuffer);
 }

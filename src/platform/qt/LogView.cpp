@@ -219,7 +219,69 @@ const char* pokemonNames[] = {
     "cufant", "copperajah", "dracozolt", "arctozolt", "dracovish", "arctovish",
     "duraludon", "dreepy", "drakloak", "dragapult", "zacian", "zamazenta",
     "eternatus", "kubfu", "urshifu", "zarude", "regieleki", "regidrago",
-    "glastrier", "spectrier", "calyrex"
+    "glastrier", "spectrier", "calyrex",
+    "sprigatito", "floragato", "meowscarada",
+    "fuecoco", "crocalor", "skeledirge",
+    "quaxly", "quaxwell", "quaquaval",
+    "lechonk", "oinkologne",
+    "tarountula", "spidops",
+    "nymble", "lokix",
+    "pawmi", "pawmo", "pawmot",
+    "tandemaus", "maushold",
+    "fidough", "dachsbun",
+    "smoliv", "dolliv", "arboliva",
+    "squawkabilly",
+    "nacli", "naclstack", "garganacl",
+    "charcadet", "armarouge", "ceruledge",
+    "tadbulb", "bellibolt",
+    "wattrel", "kilowattrel",
+    "maschiff", "mabosstiff",
+    "shroodle", "grafaiai",
+    "bramblin", "brambleghast",
+    "toedscool", "toedscruel",
+    "klawf",
+    "capsakid", "scovillain",
+    "rellor", "rabsca",
+    "flittle", "espathra",
+    "tinkatink", "tinkatuff", "tinkaton",
+    "wiglett", "wugtrio",
+    "bombirdier",
+    "finizen", "palafin",
+    "varoom", "revavroom",
+    "cyclizar",
+    "orthworm",
+    "glimmet", "glimmora",
+    "greavard", "houndstone",
+    "flamigo",
+    "cetoddle", "cetitan",
+    "veluza",
+    "dondozo",
+    "tatsugiri",
+    "annihilape",
+    "clodsire",
+    "farigiraf",
+    "dudunsparce",
+    "kingambit",
+    "great tusk", "scream tail", "brute bonnet",
+    "flutter mane", "slither wing", "sandy shocks",
+    "iron treads", "iron bundle", "iron hands",
+    "iron jugulis", "iron moth", "iron thorns",
+    "frigibax", "arctibax", "baxcalibur",
+    "gimmighoul", "gholdengo",
+    "wo-chien", "chien-pao", "ting-lu", "chi-yu",
+    "roaring moon", "iron valiant",
+    "koraidon", "miraidon",
+    "walking wake", "iron leaves",
+    "dipplin", "hydrapple",
+    "poltchageist", "sinistcha",
+    "okidogi", "munkidori", "fezandipiti",
+    "ogerpon",
+    "archaludon",
+    "raging bolt", "iron crown",
+    "gouging fire", "iron boulder",
+    "terapagos",
+    "pecharunt"
+
 };
 
 void LogView::playCry(const QString& number){
@@ -257,7 +319,7 @@ void LogView::playAnimeCry(const QString& number){
 		}
 		else{
 			// Construct the filename using QString and QDir
-			QString filename = QDir::toNativeSeparators("sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
+			QString filename = QDir::toNativeSeparators("sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".mp3");
 			// Convert the QString to a const char* if needed
 			char const* filenameChar = filename.toUtf8().constData();
 			std::thread audioThread(mSDLPlayAudio, filenameChar);
