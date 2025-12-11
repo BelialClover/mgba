@@ -288,43 +288,87 @@ void LogView::playCry(const QString& number){
     bool ok;
     int speciesnum = number.toInt(&ok);
 
-    if (ok) {
-        // Construct the filename using QString and QDir
-        QString filename = QDir::toNativeSeparators("sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav");
-        // Convert the QString to a const char* if needed
-        char const* filenameChar     = filename.toUtf8().constData();
-        std::thread audioThread(mSDLPlayAudio, filenameChar);
-		audioThread.detach(); // Detach the thread
+    if (!ok) return;
 
-		/* //Database Stuff
-		QString pokemon_name = QDir::toNativeSeparators(QString::fromUtf8(pokemonNames[speciesnum]));
-        char const* pokemon_nameChar = pokemon_name.toUtf8().constData();
-		LogView::insertString(pokemon_nameChar);
-		*/
-    }
+    QString filename = QDir::toNativeSeparators(
+        "sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav"
+    );
+
+    // Convert safely for threaded usage
+    std::string file = filename.toStdString();
+
+    std::thread audioThread([file]() {
+        mSDLPlayAudio(file.c_str());
+    });
+
+    audioThread.detach();
+
+	/* //Database Stuff
+	QString pokemon_name = QDir::toNativeSeparators(QString::fromUtf8(pokemonNames[speciesnum]));
+    char const* pokemon_nameChar = pokemon_name.toUtf8().constData();
+	LogView::insertString(pokemon_nameChar);
+	*/
+}
+
+void LogView::playCryMega(const QString& number){
+    bool ok;
+    int speciesnum = number.toInt(&ok);
+
+    if (!ok) return;
+
+    QString filename = QDir::toNativeSeparators(
+        "sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + "-mega.wav"
+    );
+
+    // Convert safely for threaded usage
+    std::string file = filename.toStdString();
+
+    std::thread audioThread([file]() {
+        mSDLPlayAudio(file.c_str());
+    });
+
+    audioThread.detach();
+
+	/* //Database Stuff
+	QString pokemon_name = QDir::toNativeSeparators(QString::fromUtf8(pokemonNames[speciesnum]));
+    char const* pokemon_nameChar = pokemon_name.toUtf8().constData();
+	LogView::insertString(pokemon_nameChar);
+	*/
 }
 
 void LogView::playAnimeCry(const QString& number){
     bool ok;
     int speciesnum = number.toInt(&ok);
 
-    if (ok) {
-		if(speciesnum < 650){
-			// Construct the filename using QString and QDir
-			QString filename = QDir::toNativeSeparators("sounds/cries/anime/" + number + ".wav");
-			// Convert the QString to a const char* if needed
-			char const* filenameChar = filename.toUtf8().constData();
-			std::thread audioThread(mSDLPlayAudio, filenameChar);
-			audioThread.detach(); // Detach the thread
-		}
-		else{
-			// Construct the filename using QString and QDir
-			QString filename = QDir::toNativeSeparators("sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".mp3");
-			// Convert the QString to a const char* if needed
-			char const* filenameChar = filename.toUtf8().constData();
-			std::thread audioThread(mSDLPlayAudio, filenameChar);
-			audioThread.detach(); // Detach the thread
-		}
+    if (!ok) return;
+
+	if(speciesnum < 650){
+        QString filename = QDir::toNativeSeparators(
+            "sounds/cries/anime/" + number + ".wav"
+        );
+
+        // Convert safely for threaded usage
+        std::string file = filename.toStdString();
+
+        std::thread audioThread([file]() {
+            mSDLPlayAudio(file.c_str());
+        });
+
+        audioThread.detach();
+    }
+    else{
+        QString filename = QDir::toNativeSeparators(
+            "sounds/cries/normal/" + QString::fromUtf8(pokemonNames[speciesnum]) + ".wav"
+        );
+
+        // Convert safely for threaded usage
+        std::string file = filename.toStdString();
+
+        std::thread audioThread([file]() {
+            mSDLPlayAudio(file.c_str());
+        });
+
+        audioThread.detach();
     }
 }
 
@@ -422,6 +466,16 @@ void LogView::postLog(int level, int category, const QString& log) {
 			//Plays the Cry
 			const QString& temp = match2.captured("crynum");
 			LogView::playAnimeCry(temp);
+			return;
+		}
+
+        //
+		QRegularExpression re4("^PlayMegaCry:(?<crynum>\\d{1,3})$");
+		QRegularExpressionMatch match4 = re4.match(log);
+		if (match2.hasMatch()) {
+			//Plays the Cry
+			const QString& temp = match4.captured("crynum");
+			LogView::playCryMega(temp);
 			return;
 		}
 
